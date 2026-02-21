@@ -1,0 +1,152 @@
+<html>
+<head>
+<title>6x6 Sudoku</title>
+<style>
+table {margin:auto; border-collapse:collapse;}
+td {border:1px solid black;}
+input {
+  width:30px;
+  height:30px;
+  text-align:center;
+  font-size:18px;
+}
+</style>
+</head>
+<body align="center">
+<h3>6x6 Sudoku</h3>
+<table id="grid"></table>
+<br>
+<button onclick="solve()">Solve</button>
+<button onclick="check()">Check</button>
+<button onclick="resetGrid()">Reset</button>
+
+<script>
+// Initial puzzle (0 = empty)
+let puzzle = [
+ [1,0,3,4,0,6],
+ [0,5,0,1,2,0],
+ [2,0,4,0,6,0],
+ [5,0,0,2,0,4],
+ [0,4,5,6,1,0],
+ [6,0,2,3,0,5]
+];
+
+// Build table dynamically
+function buildGrid(){
+  let table=document.getElementById("grid");
+  for(let i=0;i<6;i++){
+    let row=document.createElement("tr");
+    for(let j=0;j<6;j++){
+      let cell=document.createElement("td");
+      let inp=document.createElement("input");
+      inp.id="c"+i+j;
+      inp.maxLength=1;
+      if(puzzle[i][j]!=0){
+        inp.value=puzzle[i][j];
+        inp.disabled=true;
+      }
+      cell.appendChild(inp);
+      row.appendChild(cell);
+    }
+    table.appendChild(row);
+  }
+}
+buildGrid();
+
+// Read grid into array
+function read(){
+  let g=[];
+  for(let i=0;i<6;i++){
+    g[i]=[];
+    for(let j=0;j<6;j++){
+      g[i][j]=Number(c(i,j).value)||0;
+    }
+  }
+  return g;
+}
+
+// Write array back to grid
+function write(g){
+  for(let i=0;i<6;i++)
+    for(let j=0;j<6;j++)
+      c(i,j).value=g[i][j];
+}
+
+// Backtracking solver
+function sudoku(g){
+  for(let r=0;r<6;r++){
+    for(let c1=0;c1<6;c1++){
+      if(g[r][c1]==0){
+        for(let n=1;n<=6;n++){
+          if(ok(g,r,c1,n)){
+            g[r][c1]=n;
+            if(sudoku(g)) return true;
+            g[r][c1]=0;
+          }
+        }
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+// Check if number can be placed
+function ok(g,r,c,n){
+  for(let i=0;i<6;i++)
+    if(g[r][i]==n||g[i][c]==n) return false;
+
+  let br=Math.floor(r/2)*2, bc=Math.floor(c/3)*3;
+  for(let i=br;i<br+2;i++)
+    for(let j=bc;j<bc+3;j++)
+      if(g[i][j]==n) return false;
+
+  return true;
+}
+
+// Validate completed grid
+function valid(g){
+  for(let r=0;r<6;r++){
+    for(let c1=0;c1<6;c1++){
+      let n=g[r][c1];
+      if(n<1||n>6||!ok2(g,r,c1,n)) return false;
+    }
+  }
+  return true;
+}
+
+function ok2(g,r,c,n){
+  for(let i=0;i<6;i++)
+    if(i!=c && g[r][i]==n) return false;
+  for(let i=0;i<6;i++)
+    if(i!=r && g[i][c]==n) return false;
+
+  let br=Math.floor(r/2)*2, bc=Math.floor(c/3)*3;
+  for(let i=br;i<br+2;i++)
+    for(let j=bc;j<bc+3;j++)
+      if((i!=r||j!=c) && g[i][j]==n) return false;
+
+  return true;
+}
+
+// Button functions
+function solve(){
+  let g=read();
+  sudoku(g);
+  write(g);
+}
+
+function check(){
+  let g=read();
+  alert(valid(g) ? "Correct Solution!" : "Wrong Solution");
+}
+
+function resetGrid(){
+  location.reload();
+}
+
+// Helper to access cell
+function c(i,j){ return document.getElementById("c"+i+j); }
+</script>
+</body>
+</html>
