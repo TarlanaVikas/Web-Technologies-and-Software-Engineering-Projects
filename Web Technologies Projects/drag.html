@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function dragStart(ev) {
+  ev.dataTransfer.setData("text", ev.target.id);
+}
+function dragOver(ev) {
+  ev.preventDefault();
+}
+function drop(ev) {
+  ev.preventDefault();
+  const data = ev.dataTransfer.getData("text");
+  ev.target.appendChild(document.getElementById(data));
+}
+</script>
+</head>
+<body>
+<div id="target" ondrop="drop(event)" ondragover="dragOver(event)"
+     style="width:200px;height:200px;border:2px solid black;">
+  Drop here
+</div>
+<img id="dragImage" src="https://www.bing.com/th/id/OIP.4PKITmUB5ctXV7dHcqr8tAHaGb?w=197&h=211&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" draggable="true"
+     ondragstart="dragStart(event)" width="100" height="100">
+</body>
+</html>
